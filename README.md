@@ -81,12 +81,6 @@ bench/run_all.sh     # runs all 4 variants, prints comparison table
 - [`docs/ROOFLINE.md`](docs/ROOFLINE.md) — why this kernel is memory-bound and
   what that implies for further work.
 
-## Status
-
-Work in progress — see `PORTFOLIO_PLAN.md` for the refactor roadmap. The CUDA
-kernels themselves are stable and benchmarked; documentation and the public
-driver are being lifted out of the original development tree.
-
 ## License
 
 MIT — see `LICENSE`. The convolution kernels and surrounding harness in this
