@@ -11,15 +11,17 @@ buys you.
 
 | Variant | Conv1 (ms) | Conv2 (ms) | Total (ms) | Speedup vs naïve |
 |---|---:|---:|---:|---:|
-| Naïve (one thread / output) | 11.5 | 45.5 | 57.0 | 1.0× |
-| Fused im2col + tiled matmul | 37.7 | 47.9 | 81.5 | 0.7× |
-| ↳ + Tensor Cores (TF32 WMMA) | 21.1 | 47.0 | 68.1 | 0.84× |
-| ↳ + shared-memory K-index LUT | 19.4 | 45.3 | 64.6 | 0.88× |
-| **↳ + N-coarsened register tiling** | **16.7** | **12.2** | **28.9** | **2.0×** |
+| Naïve (one thread / output)             | 12.11 | 45.46 | 57.57 | 1.00× |
+| Fused im2col + tiled matmul             | 41.77 | 39.12 | 80.89 | 0.71× |
+| + Tensor Cores (TF32 WMMA)              | 21.33 | 47.51 | 68.84 | 0.84× |
+| **+ N-coarsened register tiling (final)** | **16.40** | **11.67** | **28.07** | **2.05×** |
 
-(LeNet-5 variant — Conv1: 1→4 channels, K=7 over 86×86; Conv2: 4→16 channels,
+LeNet-5 variant — Conv1: 1→4 channels, K=7 over 86×86; Conv2: 4→16 channels,
 K=7 over 40×40. Batch size 10,000. Single A40 (sm_86). Numbers are median Op
-Time over 10 measured rounds after 5 warmup rounds.)
+Time over 10 measured rounds after 5 warmup rounds. Reproduce with
+`bench/run_all.sh`; reference data in [`bench/results.csv`](bench/results.csv).
+See [`docs/OPTIMIZATION_JOURNEY.md`](docs/OPTIMIZATION_JOURNEY.md) for the
+intermediate trial-and-error steps between "fused" and "register tiling".
 
 ## What's interesting here
 
