@@ -1,0 +1,16 @@
+----- Feedback -----
+Student ID: yoonkyu2
+Assignment: m1
+Commit: 336196e90681bae6132ac7093fee093f1cfe6e7b
+CPU Total Batches: [100, 1000, 3000]
+CPU Correct Batches: [100, 1000, 3000]
+CPU Batches Wrong Accuracy: []
+CPU Batches Wrong OP Time: []
+CPU Grade: 4/4
+GPU Total Batches: [100, 1000, 8767, 10000]
+GPU Correct Batches: [100, 1000]
+GPU Batches Wrong Accuracy: [8767, 10000]
+GPU Batches Wrong OP Time: []
+GPU Grade: 3.0/6
+Total Grade: 7.0/10
+--------------------
