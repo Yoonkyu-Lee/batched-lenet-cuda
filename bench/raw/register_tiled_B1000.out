@@ -1,0 +1,12 @@
+== fused + WMMA + N-coarsened register tiling ==
+Batch=1000, warmup=5, measured=10
+
+Conv1 (1->4 channels)  in=1x86x86  out=4x80x80  K=7
+  Op Time:       1.662 ms (median of 10)
+  Throughput:   601702 images/sec
+
+Conv2 (4->16 channels)  in=4x40x40  out=16x34x34  K=7
+  Op Time:       1.175 ms (median of 10)
+  Throughput:   851406 images/sec
+
+Total Op Time: 2.836 ms

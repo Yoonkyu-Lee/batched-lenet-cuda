@@ -1,0 +1,72 @@
+--- bin/correctness_baseline ---
+== Correctness test: baseline (one-thread-per-output) ==
+Batch=5, tolerance=5.0e-02
+
+Conv1 (in=1x86x86, out=4x80x80, K=7)
+  max|diff| = 1.907e-06
+  mean|diff| = 1.776e-07
+  elements over tol: 0 / 128000
+  PASS
+
+Conv2 (in=4x40x40, out=16x34x34, K=7)
+  max|diff| = 5.722e-06
+  mean|diff| = 5.251e-07
+  elements over tol: 0 / 92480
+  PASS
+
+Overall: PASS
+
+--- bin/correctness_fused ---
+== Correctness test: fused im2col + tiled matmul ==
+Batch=5, tolerance=5.0e-02
+
+Conv1 (in=1x86x86, out=4x80x80, K=7)
+  max|diff| = 1.907e-06
+  mean|diff| = 1.776e-07
+  elements over tol: 0 / 128000
+  PASS
+
+Conv2 (in=4x40x40, out=16x34x34, K=7)
+  max|diff| = 5.722e-06
+  mean|diff| = 5.251e-07
+  elements over tol: 0 / 92480
+  PASS
+
+Overall: PASS
+
+--- bin/correctness_tensor_cores ---
+== Correctness test: fused + Tensor Cores (TF32, basic) ==
+Batch=5, tolerance=5.0e-02
+
+Conv1 (in=1x86x86, out=4x80x80, K=7)
+  max|diff| = 8.374e-03
+  mean|diff| = 1.271e-03
+  elements over tol: 0 / 128000
+  PASS
+
+Conv2 (in=4x40x40, out=16x34x34, K=7)
+  max|diff| = 1.421e-02
+  mean|diff| = 2.541e-03
+  elements over tol: 0 / 92480
+  PASS
+
+Overall: PASS
+
+--- bin/correctness_register_tiled ---
+== Correctness test: fused + WMMA + N-coarsened register tiling ==
+Batch=5, tolerance=5.0e-02
+
+Conv1 (in=1x86x86, out=4x80x80, K=7)
+  max|diff| = 8.374e-03
+  mean|diff| = 1.271e-03
+  elements over tol: 0 / 128000
+  PASS
+
+Conv2 (in=4x40x40, out=16x34x34, K=7)
+  max|diff| = 1.421e-02
+  mean|diff| = 2.541e-03
+  elements over tol: 0 / 92480
+  PASS
+
+Overall: PASS
+

@@ -1,0 +1,42 @@
+# Build artifacts
+build/
+*.o
+*.obj
+*.so
+*.a
+bin/
+batched_lenet
+correctness_test
+
+# CUDA / NVCC intermediates
+*.i
+*.ii
+*.gpu
+*.ptx
+*.cubin
+*.fatbin
+*.cudafe1.*
+
+# Profiling outputs
+*.nsys-rep
+*.sqlite
+*.ncu-rep
+*.qdrep
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Datasets (downloaded by data/download.sh, not checked in)
+data/*.bin
+data/*.gz
+data/*.idx*
+data/cifar*
+data/fmnist*
+data/raw/
+
+# Benchmark scratch
+bench/*.tmp
+bench/results_local.csv

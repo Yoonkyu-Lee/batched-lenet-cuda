@@ -1,0 +1,12 @@
+== fused + Tensor Cores (TF32, basic) ==
+Batch=10000, warmup=5, measured=10
+
+Conv1 (1->4 channels)  in=1x86x86  out=4x80x80  K=7
+  Op Time:      21.330 ms (median of 10)
+  Throughput:   468825 images/sec
+
+Conv2 (4->16 channels)  in=4x40x40  out=16x34x34  K=7
+  Op Time:      47.513 ms (median of 10)
+  Throughput:   210471 images/sec
+
+Total Op Time: 68.842 ms

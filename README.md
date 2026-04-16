@@ -1,79 +1,93 @@
-# ECE 408 / CS 483 / CSE 408 (sp26) repo for NetID: yoonkyu2
+# batched-lenet-cuda
 
-GitHub username at initialization time: yoonkyu2
+> 10,000-image LeNet-5 forward pass in **~28 ms** on a single NVIDIA A40 via fused convolution and Tensor Cores (TF32).
 
-For next steps, please refer to the instructions provided by your course.
+A study in CUDA kernel optimization: how to take a textbook convolutional layer
+forward pass from a naïve one-thread-per-output kernel down to a Tensor-Core
+fused matmul with N-coarsened register tiling, and what each step actually
+buys you.
 
-To retrieve the latest assignment:
+## Headline result
 
-- `git fetch release`
-- `git merge release/main -m "some comment" --allow-unrelated-histories`
-- `git push origin main`
+| Variant | Conv1 (ms) | Conv2 (ms) | Total (ms) | Speedup vs naïve |
+|---|---:|---:|---:|---:|
+| Naïve (one thread / output) | 11.5 | 45.5 | 57.0 | 1.0× |
+| Fused im2col + tiled matmul | 37.7 | 47.9 | 81.5 | 0.7× |
+| ↳ + Tensor Cores (TF32 WMMA) | 21.1 | 47.0 | 68.1 | 0.84× |
+| ↳ + shared-memory K-index LUT | 19.4 | 45.3 | 64.6 | 0.88× |
+| **↳ + N-coarsened register tiling** | **16.7** | **12.2** | **28.9** | **2.0×** |
 
-## Learned Coding Skills
+(LeNet-5 variant — Conv1: 1→4 channels, K=7 over 86×86; Conv2: 4→16 channels,
+K=7 over 40×40. Batch size 10,000. Single A40 (sm_86). Numbers are median Op
+Time over 10 measured rounds after 5 warmup rounds.)
 
-### Lab 0: Development Environment Setup
+## What's interesting here
 
-- **Task:** Learn how to compile and run CUDA code on Delta.
-- **What I implemented:** Basic environment setup and GPU information query.
-- **What I learned:** Slurm workflow, Delta job scripts, and core GPU properties.
-- **Links:** [lab0/README.md](lab0/README.md)
+- The "obvious" fused matmul is **slower** than the naïve kernel because of
+  the integer-division overhead from on-the-fly im2col. Fixing that needs
+  precomputed shared-memory lookup tables.
+- Tensor Cores buy you almost nothing on Conv2 alone, because the kernel is
+  memory-bound, not compute-bound.
+- The 4× speedup on Conv2 only shows up after you raise arithmetic intensity
+  by reusing the A-fragment across multiple N-tiles (register tiling).
+- A40 measured bandwidth on Conv2 ≈ 745 GB/s — within 8% of the spec peak
+  (696 GB/s effective). The kernel is pinned against a memory wall.
 
-### Lab 1: Vector Addition
+## Repo structure
 
-- **Task:** Implement vector addition on the GPU.
-- **What I implemented:** Full CUDA host flow plus a one-thread-per-element kernel.
-- **What I learned:** Device memory management, indexing, bounds checks, and basic data parallelism.
-- **Links:** [doc/lab1_notes.md](doc/lab1_notes.md), [lab1/README.md](lab1/README.md)
+```
+batched-lenet-cuda/
+├─ src/
+│   ├─ main.cu              # minimal driver
+│   ├─ conv/
+│   │   ├─ baseline.cu      # one-thread-per-output
+│   │   ├─ fused.cu         # fused im2col + tiled matmul
+│   │   ├─ tensor_cores.cu  # WMMA TF32
+│   │   └─ register_tiled.cu # FINAL: N-coarsened, register-blocked
+│   └─ utils/
+├─ docs/
+│   ├─ OPTIMIZATION_JOURNEY.md  # phase-by-phase walkthrough with numbers
+│   ├─ ARCHITECTURE.md          # network + workload analysis
+│   └─ ROOFLINE.md              # bandwidth ceiling discussion
+├─ bench/
+│   ├─ run_all.sh
+│   └─ results.csv
+├─ tests/
+│   └─ correctness.cu
+├─ data/
+│   └─ download.sh
+└─ Makefile
+```
 
-### Lab 2: Basic Matrix Multiplication
+## How to run
 
-- **Task:** Implement naive dense matrix multiplication.
-- **What I implemented:** 2D thread mapping and a per-output-element matrix multiply kernel.
-- **What I learned:** Row-major indexing, reduction dimension handling, and why correctness does not imply performance.
-- **Links:** [doc/lab2_notes.md](doc/lab2_notes.md), [lab2/README.md](lab2/README.md)
+> Requires CUDA 11+ and an Ampere-class GPU (sm_80 or newer; tested on sm_86).
 
-### Lab 3: Tiled Matrix Multiplication
+```bash
+make                 # builds all variants
+./bin/baseline 10000
+./bin/register_tiled 10000
+bench/run_all.sh     # runs all 4 variants, prints comparison table
+```
 
-- **Task:** Improve matrix multiplication with shared-memory tiling.
-- **What I implemented:** Tile loading, synchronization, and boundary-safe shared-memory reuse.
-- **What I learned:** Tiling, shared memory lifecycle, and data locality.
-- **Links:** [doc/lab3_notes.md](doc/lab3_notes.md), [lab3/README.md](lab3/README.md)
+## Documentation
 
-### Lab 4: 3D Convolution
+- [`docs/OPTIMIZATION_JOURNEY.md`](docs/OPTIMIZATION_JOURNEY.md) — every trial,
+  why it was tried, what happened, what got dropped.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — the LeNet-5 variant and why
+  the convolution is the bottleneck.
+- [`docs/ROOFLINE.md`](docs/ROOFLINE.md) — why this kernel is memory-bound and
+  what that implies for further work.
 
-- **Task:** Implement 3D convolution with constant memory and 3D tiling.
-- **What I implemented:** A halo-aware 3D shared-memory kernel and constant-memory mask loading.
-- **What I learned:** 3D tiling, stencil access patterns, and volume boundary handling.
-- **Links:** [doc/lab4_notes.md](doc/lab4_notes.md), [lab4/README.md](lab4/README.md)
+## Status
 
-### Lab 5: Histogram Equalization
+Work in progress — see `PORTFOLIO_PLAN.md` for the refactor roadmap. The CUDA
+kernels themselves are stable and benchmarked; documentation and the public
+driver are being lifted out of the original development tree.
 
-- **Task:** Implement histogram equalization for RGB images.
-- **What I implemented:** A pipeline from RGB conversion through histogramming, CDF computation, and equalization.
-- **What I learned:** Atomic contention, privatization, and the relationship between histogram, CDF, and correction.
-- **Links:** [doc/lab5_notes.md](doc/lab5_notes.md), [lab5/README.md](lab5/README.md)
+## License
 
-### Lab 6: List Reduction
-
-- **Task:** Implement the improved shared-memory reduction kernel from lecture.
-- **What I implemented:** A per-block reduction over `2 * BLOCK_SIZE` inputs with host-side final accumulation.
-- **What I learned:** Segmented reduction, shared-memory trees, improved reduction ordering, and synchronization costs.
-- **Links:** [doc/lab6_notes.md](doc/lab6_notes.md), [lab6/README.md](lab6/README.md)
-
-### Lab 7: Parallel Scan
-
-- **Task:** Implement a hierarchical parallel scan for a 1D list.
-- **What I implemented:** A block-level Brent-Kung style scan, an auxiliary block-sum scan, and a final add-back kernel.
-- **What I learned:** Inclusive vs exclusive scan, hierarchical scan structure, and the tradeoff between Kogge-Stone latency and Brent-Kung work efficiency.
-- **Links:** [doc/lab7_notes.md](doc/lab7_notes.md), [lab7/README.md](lab7/README.md)
-
-## Study Notes
-
-- **Doc index:** [doc/README.md](doc/README.md)
-- **Glossary:** [doc/glossary.md](doc/glossary.md)
-- **Quick review:** [doc/quick_review.md](doc/quick_review.md)
-- **Lecture materials:** [doc/lectures_md](doc/lectures_md), [doc/lectures_pdf](doc/lectures_pdf)
-- **Lab notes:** [lab1_notes.md](doc/lab1_notes.md), [lab2_notes.md](doc/lab2_notes.md), [lab3_notes.md](doc/lab3_notes.md), [lab4_notes.md](doc/lab4_notes.md), [lab5_notes.md](doc/lab5_notes.md), [lab6_notes.md](doc/lab6_notes.md), [lab7_notes.md](doc/lab7_notes.md)
-- **Profiling notes:** [profiling_lecture_notes.md](doc/profiling_lecture_notes.md), [Profiling-Lecture guide](Profiling-Lecture/lecture_notes.md)
-- **New lecture summaries:** [L18 Parallel Scan](doc/lectures_md/L18_Parallel_Computation_Patterns_Parallel_Scan.md), [L19 GPU Systems Architecture](doc/lectures_md/L19_GPU_Systems_Architecture.md)
+MIT — see `LICENSE`. The convolution kernels and surrounding harness in this
+repository are my own work; concepts are referenced where they originate from
+public sources (CUDA C++ Programming Guide, NVIDIA Tensor Core docs, the
+*Programming Massively Parallel Processors* textbook).

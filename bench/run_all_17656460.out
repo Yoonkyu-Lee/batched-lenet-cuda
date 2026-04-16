@@ -1,0 +1,41 @@
+Running baseline @ B=100 ...
+Running baseline @ B=1000 ...
+Running baseline @ B=10000 ...
+Running fused @ B=100 ...
+Running fused @ B=1000 ...
+Running fused @ B=10000 ...
+Running tensor_cores @ B=100 ...
+Running tensor_cores @ B=1000 ...
+Running tensor_cores @ B=10000 ...
+Running register_tiled @ B=100 ...
+Running register_tiled @ B=1000 ...
+Running register_tiled @ B=10000 ...
+
+=== Summary ===
+
+Batch = 100
+  variant                                        Conv1 (ms)  Conv2 (ms)  Total (ms)
+  ---------------------------------------------   ---------   ---------   ---------
+  baseline                                            0.132       0.482       0.614
+  fused                                               0.430       0.410       0.840
+  tensor_cores                                        0.225       0.474       0.699
+  register_tiled                                      0.184       0.142       0.327
+
+Batch = 1000
+  variant                                        Conv1 (ms)  Conv2 (ms)  Total (ms)
+  ---------------------------------------------   ---------   ---------   ---------
+  baseline                                            1.171       4.566       5.737
+  fused                                               4.189       3.931       8.120
+  tensor_cores                                        2.096       4.730       6.826
+  register_tiled                                      1.662       1.175       2.836
+
+Batch = 10000
+  variant                                        Conv1 (ms)  Conv2 (ms)  Total (ms)
+  ---------------------------------------------   ---------   ---------   ---------
+  baseline                                           12.111      45.456      57.567
+  fused                                              41.766      39.124      80.890
+  tensor_cores                                       21.330      47.513      68.842
+  register_tiled                                     16.402      11.667      28.070
+
+Raw outputs: bench/raw/
+CSV: bench/results_local.csv

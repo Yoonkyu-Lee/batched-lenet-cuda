@@ -1,0 +1,12 @@
+== fused im2col + tiled matmul ==
+Batch=1000, warmup=5, measured=10
+
+Conv1 (1->4 channels)  in=1x86x86  out=4x80x80  K=7
+  Op Time:       4.189 ms (median of 10)
+  Throughput:   238710 images/sec
+
+Conv2 (4->16 channels)  in=4x40x40  out=16x34x34  K=7
+  Op Time:       3.931 ms (median of 10)
+  Throughput:   254379 images/sec
+
+Total Op Time: 8.120 ms

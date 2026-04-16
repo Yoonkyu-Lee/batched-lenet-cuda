@@ -1,0 +1,15 @@
+# Reference numbers captured on an NVIDIA A40 (sm_86) via bench/run_all.sh.
+# warmup=5, measured=10 (median per layer). Op Times only; no H<->D transfers.
+variant,batch,conv1_ms,conv2_ms,total_ms
+baseline,100,0.132,0.482,0.614
+baseline,1000,1.171,4.566,5.737
+baseline,10000,12.111,45.456,57.567
+fused,100,0.430,0.410,0.840
+fused,1000,4.189,3.931,8.120
+fused,10000,41.766,39.124,80.890
+tensor_cores,100,0.225,0.474,0.699
+tensor_cores,1000,2.096,4.730,6.826
+tensor_cores,10000,21.330,47.513,68.842
+register_tiled,100,0.184,0.142,0.327
+register_tiled,1000,1.662,1.175,2.836
+register_tiled,10000,16.402,11.667,28.070

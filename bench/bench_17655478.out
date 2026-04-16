@@ -1,0 +1,55 @@
+=== baseline ===
+== baseline (one-thread-per-output) ==
+Batch=1000, warmup=3, measured=5
+
+Conv1 (1->4 channels)  in=1x86x86  out=4x80x80  K=7
+  Op Time:       1.168 ms (median of 5)
+  Throughput:   855883 images/sec
+
+Conv2 (4->16 channels)  in=4x40x40  out=16x34x34  K=7
+  Op Time:       4.616 ms (median of 5)
+  Throughput:   216629 images/sec
+
+Total Op Time: 5.785 ms
+
+=== fused ===
+== fused im2col + tiled matmul ==
+Batch=1000, warmup=3, measured=5
+
+Conv1 (1->4 channels)  in=1x86x86  out=4x80x80  K=7
+  Op Time:       4.187 ms (median of 5)
+  Throughput:   238827 images/sec
+
+Conv2 (4->16 channels)  in=4x40x40  out=16x34x34  K=7
+  Op Time:       3.928 ms (median of 5)
+  Throughput:   254578 images/sec
+
+Total Op Time: 8.115 ms
+
+=== tensor_cores ===
+== fused + Tensor Cores (TF32, basic) ==
+Batch=1000, warmup=3, measured=5
+
+Conv1 (1->4 channels)  in=1x86x86  out=4x80x80  K=7
+  Op Time:       2.099 ms (median of 5)
+  Throughput:   476372 images/sec
+
+Conv2 (4->16 channels)  in=4x40x40  out=16x34x34  K=7
+  Op Time:       4.731 ms (median of 5)
+  Throughput:   211377 images/sec
+
+Total Op Time: 6.830 ms
+
+=== register_tiled ===
+== fused + WMMA + N-coarsened register tiling ==
+Batch=1000, warmup=3, measured=5
+
+Conv1 (1->4 channels)  in=1x86x86  out=4x80x80  K=7
+  Op Time:       1.665 ms (median of 5)
+  Throughput:   600592 images/sec
+
+Conv2 (4->16 channels)  in=4x40x40  out=16x34x34  K=7
+  Op Time:       1.175 ms (median of 5)
+  Throughput:   851406 images/sec
+
+Total Op Time: 2.840 ms
