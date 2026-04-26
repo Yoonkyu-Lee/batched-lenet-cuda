@@ -68,6 +68,13 @@ To retrieve the latest assignment:
 - **What I learned:** Inclusive vs exclusive scan, hierarchical scan structure, and the tradeoff between Kogge-Stone latency and Brent-Kung work efficiency.
 - **Links:** [doc/lab7_notes.md](doc/lab7_notes.md), [lab7/README.md](lab7/README.md)
 
+### Lab 8: Sparse Matrix-Vector Multiplication (JDS)
+
+- **Task:** Implement SpMV for a sparse matrix using the Jagged Diagonal Storage (JDS) transposed format.
+- **What I implemented:** A one-thread-per-sorted-row kernel that walks `matColStart` sections and writes results back through `matRowPerm`.
+- **What I learned:** Sparse storage tradeoffs (COO/CSR/ELL/JDS), how row sorting plus column-major transposition enables coalesced loads and reduces warp divergence, and why format choice can dominate kernel cleverness.
+- **Links:** [doc/lab8_notes.md](doc/lab8_notes.md), [lab8/README.md](lab8/README.md)
+
 ## Study Notes
 
 - **Doc index:** [doc/README.md](doc/README.md)
