@@ -60,6 +60,14 @@
 - Scan is a good example of a memory-bound pattern where algorithm design and system bandwidth intuition meet.
 - Main takeaway: understand both the local tree algorithm and the larger system bottlenecks around it.
 
+## Lab 8
+
+- JDS (Jagged Diagonal Storage) solves the coalescing and divergence problems of CSR for SpMV.
+- The key insight: sort rows by length, transpose to column-major, so adjacent threads access adjacent memory.
+- One thread per sorted row; `matRowPerm` maps the result back to the original row order.
+- No padding (unlike ELL), no atomics (unlike COO), coalesced reads, and low divergence.
+- Main takeaway: for sparse problems, choosing the right storage format matters more than kernel-level tricks.
+
 ## Profiling Lecture
 
 - The profiling lecture is a worked example, not a graded lab, built around three matrix multiplication kernels.

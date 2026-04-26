@@ -14,6 +14,16 @@ __global__ void spmvJDSKernel(float *out, int *matColStart, int *matCols,
                               int *matRowPerm, int *matRows,
                               float *matData, float *vec, int dim) {
   //@@ insert spmv kernel for jds format
+  int row = blockIdx.x * blockDim.x + threadIdx.x;
+  if (row < dim) {
+    float dot = 0.0f;
+    int numSections = matRows[row]; // number of non-zeros in this (sorted) row
+    for (int sec = 0; sec < numSections; sec++) {
+      int idx = matColStart[sec] + row;
+      dot += matData[idx] * vec[matCols[idx]];
+    }
+    out[matRowPerm[row]] = dot; // write back to original row position
+  }
 }
 
 static void spmvJDS(float *out, int *matColStart, int *matCols,
@@ -21,6 +31,10 @@ static void spmvJDS(float *out, int *matColStart, int *matCols,
                     float *vec, int dim) {
 
   //@@ invoke spmv kernel for jds format
+  int blockSize = 256;
+  int numBlocks = (dim + blockSize - 1) / blockSize;
+  spmvJDSKernel<<<numBlocks, blockSize>>>(out, matColStart, matCols,
+                                          matRowPerm, matRows, matData, vec, dim);
 }
 
 int main(int argc, char **argv) {

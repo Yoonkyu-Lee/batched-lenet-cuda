@@ -19,6 +19,7 @@ This folder contains the study notes and lecture materials that were previously 
 - [lab5_notes.md](lab5_notes.md)
 - [lab6_notes.md](lab6_notes.md)
 - [lab7_notes.md](lab7_notes.md)
+- [lab8_notes.md](lab8_notes.md)
 
 ## Shared Docs
 
@@ -33,3 +34,4 @@ This folder contains the study notes and lecture materials that were previously 
 - [L20_Data_Transfer_and_CUDA_Streams.md](lectures_md/L20_Data_Transfer_and_CUDA_Streams.md)
 - [L21_Parallel_Sparse_Methods.md](lectures_md/L21_Parallel_Sparse_Methods.md)
 - [L22_Other_Acceleration_APIs.md](lectures_md/L22_Other_Acceleration_APIs.md)
+- [L23_Attention_Optimization.md](lectures_md/L23_Attention_Optimization.md)
